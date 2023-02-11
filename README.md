@@ -12,4 +12,4 @@
 
 ## Running
 
-`BING_COOKIE="..." SYDNEY_SECRET="<YOUR_SECRET>" SydneyAuth`
+`BING_COOKIE="..." SydneyAuth`
