@@ -14,7 +14,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var SYDNEY_SECRET = os.Getenv("SYDNEY_SECRET")
 var BING_COOKIE = os.Getenv("BING_COOKIE")
 
 func rateLimitHandler(c *gin.Context, info ratelimit.Info) {
@@ -24,13 +23,22 @@ func rateLimitHandler(c *gin.Context, info ratelimit.Info) {
 }
 
 func main() {
-	store := ratelimit.InMemoryStore(&ratelimit.InMemoryOptions{
+	auth_store := ratelimit.InMemoryStore(&ratelimit.InMemoryOptions{
 		Rate:  time.Minute,
 		Limit: 5,
 	})
-	mw := ratelimit.RateLimiter(store, &ratelimit.Options{
+	auth_limiter := ratelimit.RateLimiter(auth_store, &ratelimit.Options{
 		ErrorHandler: rateLimitHandler,
 		KeyFunc:      func(c *gin.Context) string { return c.GetHeader("Authorization") },
+	})
+
+	allow_store := ratelimit.InMemoryStore(&ratelimit.InMemoryOptions{
+		Rate:  24 * time.Hour,
+		Limit: 1,
+	})
+	allow_limiter := ratelimit.RateLimiter(allow_store, &ratelimit.Options{
+		ErrorHandler: rateLimitHandler,
+		KeyFunc:      func(c *gin.Context) string { return c.ClientIP() },
 	})
 
 	r := gin.Default()
@@ -39,7 +47,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.GET("/auth", mw, func(c *gin.Context) {
+	r.GET("/auth", auth_limiter, func(c *gin.Context) {
 		// Get headers and look for Authorization
 		authHeader := c.GetHeader("Authorization")
 		// Check if the token is valid
@@ -93,17 +101,7 @@ func main() {
 		c.JSON(200, response_json)
 
 	})
-	r.POST("/allow", func(c *gin.Context) {
-		// Get headers and look for Authorization
-		authHeader := c.GetHeader("Authorization")
-		// Check if the token is valid
-		if !isAdminToken(authHeader) {
-			c.JSON(401, gin.H{
-				"message": "Unauthorized",
-			})
-			c.Abort()
-			return
-		}
+	r.POST("/allow", allow_limiter, func(c *gin.Context) {
 		// Generate random UUID
 		uuid := uuid.New().String()
 		// Create token
@@ -122,11 +120,6 @@ func main() {
 
 	})
 	r.Run() // listen and serve on
-}
-
-func isAdminToken(authHeader string) bool {
-	// Check if the token is valid
-	return authHeader == os.Getenv("SYDNEY_SECRET")
 }
 
 func isTokenValid(token string) bool {
