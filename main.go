@@ -34,7 +34,7 @@ func main() {
 
 	allow_store := ratelimit.InMemoryStore(&ratelimit.InMemoryOptions{
 		Rate:  24 * time.Hour,
-		Limit: 1,
+		Limit: 2,
 	})
 	allow_limiter := ratelimit.RateLimiter(allow_store, &ratelimit.Options{
 		ErrorHandler: rateLimitHandler,
