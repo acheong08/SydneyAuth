@@ -63,6 +63,23 @@ func main() {
 			Method: "GET",
 			URL:    &url.URL{Scheme: "https", Host: "www.bing.com", Path: "/turing/conversation/create"},
 		}
+		headers := http.Header{
+			"accept":          []string{"application/json"},
+			"accept-encoding": []string{"gzip, deflate, br"},
+			"accept-language": []string{"en-US,en;q=0.9"},
+			"content-type":    []string{"application/json"},
+			"sec-ch-ua":       []string{"\"Microsoft Edge\";v=\"111\", \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"111\""},
+			"sec-ch-ua-arch":  []string{"\"x86\""}, "sec-ch-ua-bitness": []string{"\"64\""},
+			"sec-ch-ua-full-version":      []string{"\"111.0.1652.0\""},
+			"sec-ch-ua-full-version-list": []string{"\"Microsoft Edge\";v=\"111.0.1652.0\", \"Not(A:Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"111.0.5551.0\""},
+			"sec-ch-ua-mobile":            []string{"?0"}, "sec-ch-ua-model": []string{""}, "sec-ch-ua-platform": []string{"\"Linux\""},
+			"sec-ch-ua-platform-version": []string{"\"5.19.0\""},
+			"sec-fetch-dest":             []string{"empty"},
+			"sec-fetch-mode":             []string{"cors"},
+			"sec-fetch-site":             []string{"same-origin"},
+			"user-agent":                 []string{"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.0.0"},
+			"x-ms-client-request-id":     []string{uuid.New().String()}}
+		request.Header = headers
 		jar, err := cookiejar.New(nil)
 		if err != nil {
 			c.JSON(500, gin.H{
