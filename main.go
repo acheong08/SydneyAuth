@@ -15,6 +15,7 @@ import (
 )
 
 var BING_COOKIE = os.Getenv("BING_COOKIE")
+var SYDNEY_AUTH = os.Getenv("SYDNEY_AUTH")
 
 func rateLimitHandler(c *gin.Context, info ratelimit.Info) {
 	c.JSON(429, gin.H{
@@ -119,6 +120,14 @@ func main() {
 
 	})
 	r.POST("/allow", allow_limiter, func(c *gin.Context) {
+		// Check if the token is valid
+		if c.GetHeader("Sydney_Auth") != SYDNEY_AUTH {
+			c.JSON(401, gin.H{
+				"message": "Unauthorized",
+			})
+			c.Abort()
+			return
+		}
 		// Generate random UUID
 		uuid := uuid.New().String()
 		// Create token
