@@ -94,8 +94,10 @@ func main() {
 			Value: BING_COOKIE,
 		}
 		jar.SetCookies(&url.URL{Scheme: "https", Host: "www.bing.com"}, []*http.Cookie{cookie})
-		// Add cookie to header
-		request.Header.Add("Cookie", "_U="+BING_COOKIE)
+		// Add cookie to request
+		request.Header.Add("Cookie", cookie.String())
+		// Add jar to client
+		http.DefaultClient.Jar = jar
 		response, err := http.DefaultClient.Do(&request)
 		if err != nil {
 			c.JSON(500, gin.H{
