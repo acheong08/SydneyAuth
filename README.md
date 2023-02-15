@@ -12,4 +12,4 @@
 
 ## Running
 
-`BING_COOKIE="..." SydneyAuth`
+`BING_COOKIE="..." KievRPSSecAuth="..." SydneyAuth`
