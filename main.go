@@ -15,6 +15,7 @@ import (
 )
 
 var BING_COOKIE = os.Getenv("BING_COOKIE")
+var KievRPSSecAuth = os.Getenv("KievRPSSecAuth")
 var SYDNEY_AUTH = os.Getenv("SYDNEY_AUTH")
 
 func rateLimitHandler(c *gin.Context, info ratelimit.Info) {
@@ -89,13 +90,19 @@ func main() {
 			c.Abort()
 			return
 		}
-		cookie := &http.Cookie{
+		U_cookie := &http.Cookie{
 			Name:  "_U",
 			Value: BING_COOKIE,
 		}
-		jar.SetCookies(&url.URL{Scheme: "https", Host: "www.bing.com"}, []*http.Cookie{cookie})
+		KievRPSSecAuth_cookie := &http.Cookie{
+			Name:  "KievRPSSecAuth",
+			Value: KievRPSSecAuth,
+		}
+		jar.SetCookies(&url.URL{Scheme: "https", Host: "www.bing.com"}, []*http.Cookie{U_cookie})
+		jar.SetCookies(&url.URL{Scheme: "https", Host: "www.bing.com"}, []*http.Cookie{KievRPSSecAuth_cookie})
 		// Add cookie to request
-		request.Header.Add("Cookie", cookie.String())
+		request.Header.Add("Cookie", U_cookie.String())
+		request.Header.Add("Cookie", KievRPSSecAuth_cookie.String())
 		// Add jar to client
 		http.DefaultClient.Jar = jar
 		response, err := http.DefaultClient.Do(&request)
